@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+import "google/protobuf/descriptor.proto";
+
+package validation;
+option go_package = "validation";
+
+// The number here is supposed to be registered with google I think, I just did a random num gen
+extend google.protobuf.FieldOptions {
+	optional FieldValidation field = 61032;
+}
+
+message FieldValidation {
+	optional bool not_empty_string = 1;
+	optional string matches = 2;
+	optional string contains = 3;
+	optional string regex = 4;
+	optional int64 int_lte = 5;
+	optional int64 int_gte = 6;
+	optional int64 int_eq = 7;
+	optional double float_lte = 8;
+	optional double float_gte = 9;
+	optional double float_eq = 10;
+	optional int64 min_len = 11;
+	optional int64 max_len = 12;
+	optional int64 eq_len = 13;
+	optional string error = 14;
+	optional bool is_uuid = 15;
+	optional bool is_email = 16;
+}
