@@ -78,8 +78,8 @@ func (p *Plugin) GenerateImports(file *generator.FileDescriptor) {
 // I lied above, this is actaully where all the code gets generated, at least for proto3
 func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generator.Descriptor) {
 	// begin Validate for this message
-	p.P("func (m *%s) Validate() *ValidationError {", message.GetName())
-	p.P("err := ValidationError{}")
+	p.P("func (m *%s) Validate() *ValidationErrors {", message.GetName())
+	p.P("err := ValidationErrors{}")
 
 	for _, field := range message.Field {
 		v := getFieldValidation(field)
@@ -91,13 +91,21 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 					p.P("}")
 				}
 			} else {
-				p.P("if m.%s != nil { ", generator.CamelCase(field.GetName()))
-				p.P("msgerr := m.%s.Validate()", generator.CamelCase(field.GetName()))
-				p.P(`if len(err.Fields) != 0 {
-					err.Fields = append(err.Fields, msgerr.Fields...)
-					err.Errors = append(err.Errors, msgerr.Errors...)
-				}`)
-				p.P("}")
+				if field.IsRepeated() {
+					p.P("for i, v := range m.%s {", generator.CamelCase(field.GetName()))
+					p.P("msgerr := v.Validate()")
+					p.P("if len(msgerr.Errors) != 0 {")
+					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in repeated value {field}", v, field, "msgerr")
+					p.P("}")
+					p.P("}")
+				} else {
+					p.P("if m.%s != nil { ", generator.CamelCase(field.GetName()))
+					p.P("msgerr := m.%s.Validate()", generator.CamelCase(field.GetName()))
+					p.P("if len(msgerr.Errors) != 0 {")
+					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in {field}", v, field, "msgerr")
+					p.P("}")
+					p.P("}")
+				}
 			}
 		} else {
 			if field.IsRepeated() {
@@ -110,7 +118,7 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 		}
 	}
 	// return any error and close Validate for this message
-	p.P("if len(err.Fields) != 0 { return &err }")
+	p.P("if len(err.Errors) != 0 { return &err }")
 	p.P("return nil")
 	p.P("}")
 }
@@ -168,14 +176,19 @@ func (p *Plugin) generateHelperFunctions() {
 
 func (p *Plugin) generateErrorType() {
 	ourErrorDef := `type ValidationError struct {
-		Fields []string
-		Errors []string
+		Field string
+		ErrorMessage string
+		Errors []*ValidationError
+	}
+
+	type ValidationErrors struct {
+		Errors []*ValidationError
 	}
 
 	// Error will just return the first error we encountered, inspect the actual object for more details
-	func (e ValidationError) Error() string {
+	func (e *ValidationErrors) Error() string {
 		if len(e.Errors) >= 1 {
-			return e.Errors[0]
+			return e.Errors[0].ErrorMessage
 		}
 		return ""
 	}
@@ -183,30 +196,26 @@ func (p *Plugin) generateErrorType() {
 	p.P(ourErrorDef)
 }
 
-func (p *Plugin) generateErrorCode(fieldName string, requiredValue string, errorMsg string, v *pb.FieldValidation, field *descriptor.FieldDescriptorProto) {
-	/*
-		p.P(`err.Fields = append(err.Fields, "%s")`, fieldName)
-		if v.Error != nil {
-			p.P(`err.Errors = append(err.Errors, "%s")`, v.GetError())
-		} else {
-			p.P(`err.Errors = append(err.Errors, "%s")`, errorMsg)
-		}
-	*/
-
-	if v.Error != nil {
+func (p *Plugin) generateErrorCode(fieldName string, requiredValue string, errorMsg string, v *pb.FieldValidation, field *descriptor.FieldDescriptorProto, subErrorArray string) {
+	if v != nil && v.Error != nil {
 		errorMsg = v.GetError()
 	}
 	errorMsg = strings.ReplaceAll(errorMsg, "{value}", requiredValue)
 
+	p.P(`verr := ValidationError{}`)
 	if field.IsRepeated() {
 		errorMsg = strings.ReplaceAll(errorMsg, "{field}", `" + fieldName + "`)
 		p.strconvPkg.Use()
 		p.P(`fieldName := "%s["+strconv.Itoa(i)+"]"`, fieldName)
-		p.P(`err.Fields = append(err.Fields, fieldName)`)
-		p.P(`err.Errors = append(err.Errors, "%s")`, errorMsg)
+		p.P(`verr.Field = fieldName`)
+		p.P(`verr.ErrorMessage = "%s"`, errorMsg)
 	} else {
 		errorMsg = strings.ReplaceAll(errorMsg, "{field}", fieldName)
-		p.P(`err.Fields = append(err.Fields, "%s")`, fieldName)
-		p.P(`err.Errors = append(err.Errors, "%s")`, errorMsg)
+		p.P(`verr.Field = "%s"`, fieldName)
+		p.P(`verr.ErrorMessage = "%s"`, errorMsg)
 	}
+	if subErrorArray != "" {
+		p.P(`copy(verr.Errors, %s.Errors)`, subErrorArray)
+	}
+	p.P(`err.Errors = append(err.Errors, &verr)`)
 }
