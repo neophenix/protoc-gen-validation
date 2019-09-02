@@ -9,6 +9,9 @@ option go_package = "validation";
 extend google.protobuf.FieldOptions {
 	optional FieldValidation field = 61032;
 }
+extend google.protobuf.MessageOptions {
+	optional MessageValidation message = 61032;
+}
 
 message FieldValidation {
 	optional bool not_empty_string = 1;
@@ -27,4 +30,8 @@ message FieldValidation {
 	optional string error = 14;
 	optional bool is_uuid = 15;
 	optional bool is_email = 16;
+}
+
+message MessageValidation {
+	optional bool return_on_error = 1;
 }

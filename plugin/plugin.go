@@ -81,13 +81,15 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 	p.P("func (m *%s) Validate() *ValidationErrors {", message.GetName())
 	p.P("err := ValidationErrors{}")
 
+	mv := getMessageValidation(message)
+
 	for _, field := range message.Field {
 		v := getFieldValidation(field)
 		if field.IsMessage() {
 			if isWKT(field.GetTypeName()) {
 				if v != nil {
 					p.P("if m.%s != nil {", generator.CamelCase(field.GetName()))
-					p.generateValidationCode(field, v)
+					p.generateValidationCode(field, v, mv)
 					p.P("}")
 				}
 			} else {
@@ -95,14 +97,14 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 					p.P("for i, v := range m.%s {", generator.CamelCase(field.GetName()))
 					p.P("msgerr := v.Validate()")
 					p.P("if len(msgerr.Errors) != 0 {")
-					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in repeated value {field}", v, field, "msgerr")
+					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in repeated value {field}", v, mv, field, "msgerr")
 					p.P("}")
 					p.P("}")
 				} else {
 					p.P("if m.%s != nil { ", generator.CamelCase(field.GetName()))
 					p.P("msgerr := m.%s.Validate()", generator.CamelCase(field.GetName()))
 					p.P("if len(msgerr.Errors) != 0 {")
-					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in {field}", v, field, "msgerr")
+					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in {field}", v, mv, field, "msgerr")
 					p.P("}")
 					p.P("}")
 				}
@@ -110,15 +112,18 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 		} else {
 			if field.IsRepeated() {
 				p.P("for i, _ := range m.%s {", generator.CamelCase(field.GetName()))
-				p.generateValidationCode(field, v)
+				p.generateValidationCode(field, v, mv)
 				p.P("}")
 			} else {
-				p.generateValidationCode(field, v)
+				p.generateValidationCode(field, v, mv)
 			}
 		}
 	}
 	// return any error and close Validate for this message
-	p.P("if len(err.Errors) != 0 { return &err }")
+	// but only return errors here if we aren't returning on individual errors as defined by message options
+	if mv == nil || mv.ReturnOnError == nil || !mv.GetReturnOnError() {
+		p.P("if len(err.Errors) != 0 { return &err }")
+	}
 	p.P("return nil")
 	p.P("}")
 }
@@ -126,7 +131,7 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 // P forwards to p.gen.P after a Sprintf
 func (p *Plugin) P(s string, args ...interface{}) { p.gen.P(fmt.Sprintf(s, args...)) }
 
-func (p *Plugin) generateValidationCode(field *descriptor.FieldDescriptorProto, v *pb.FieldValidation) {
+func (p *Plugin) generateValidationCode(field *descriptor.FieldDescriptorProto, v *pb.FieldValidation, mv *pb.MessageValidation) {
 	if v == nil {
 		return
 	}
@@ -141,11 +146,11 @@ func (p *Plugin) generateValidationCode(field *descriptor.FieldDescriptorProto, 
 	}
 
 	if isString(field) {
-		p.generateStringValidationCode(fieldName, fieldValueAccessor, v, field)
+		p.generateStringValidationCode(fieldName, fieldValueAccessor, v, mv, field)
 	} else if isInt(field) {
-		p.generateIntValidationCode(fieldName, fieldValueAccessor, v, field)
+		p.generateIntValidationCode(fieldName, fieldValueAccessor, v, mv, field)
 	} else if isFloat(field) {
-		p.generateFloatValidationCode(fieldName, fieldValueAccessor, v, field)
+		p.generateFloatValidationCode(fieldName, fieldValueAccessor, v, mv, field)
 	}
 }
 
@@ -154,6 +159,16 @@ func getFieldValidation(field *descriptor.FieldDescriptorProto) *pb.FieldValidat
 		v, err := proto.GetExtension(field.Options, pb.E_Field)
 		if err == nil && v.(*pb.FieldValidation) != nil {
 			return (v.(*pb.FieldValidation))
+		}
+	}
+	return nil
+}
+
+func getMessageValidation(msg *generator.Descriptor) *pb.MessageValidation {
+	if msg.Options != nil {
+		v, err := proto.GetExtension(msg.Options, pb.E_Message)
+		if err == nil && v.(*pb.MessageValidation) != nil {
+			return (v.(*pb.MessageValidation))
 		}
 	}
 	return nil
@@ -196,7 +211,7 @@ func (p *Plugin) generateErrorType() {
 	p.P(ourErrorDef)
 }
 
-func (p *Plugin) generateErrorCode(fieldName string, requiredValue string, errorMsg string, v *pb.FieldValidation, field *descriptor.FieldDescriptorProto, subErrorArray string) {
+func (p *Plugin) generateErrorCode(fieldName string, requiredValue string, errorMsg string, v *pb.FieldValidation, mv *pb.MessageValidation, field *descriptor.FieldDescriptorProto, subErrorArray string) {
 	if v != nil && v.Error != nil {
 		errorMsg = v.GetError()
 	}
@@ -218,4 +233,7 @@ func (p *Plugin) generateErrorCode(fieldName string, requiredValue string, error
 		p.P(`copy(verr.Errors, %s.Errors)`, subErrorArray)
 	}
 	p.P(`err.Errors = append(err.Errors, &verr)`)
+	if mv != nil && mv.ReturnOnError != nil && mv.GetReturnOnError() {
+		p.P(`return &err`)
+	}
 }
