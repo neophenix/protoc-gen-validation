@@ -40,6 +40,9 @@ field name and the required value.
 * float_gte: double - must be >= this value
 * float_eq: double - must equal this value
 
+### Message Options
+* return_on_error: bool - returns when we encounter an error instead of collecting all of them
+
 ## Errors
 A pointer to ValidationErrors is returned by each Validate() function.  This contains a slice of ValidationError pointers.  Each
 ValidationError has a Field that will be the name of the field that caused the error, and an ErrorMessage that is the human
@@ -66,6 +69,7 @@ import "validation.proto";
 import "google/protobuf/wrappers.proto";
 
 message Inner {
+	option (validation.message).return_on_error = true;
 	string hello = 1 [(validation.field) = {not_empty_string: true}];
 }
 
