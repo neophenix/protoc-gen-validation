@@ -1,6 +1,8 @@
 package plugin
 
 import (
+	"fmt"
+
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	pb "github.com/neophenix/protoc-gen-validation"
 )
@@ -24,6 +26,21 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 	if v.Regex != nil {
 		p.P(`if !%s.MustCompile("%s").MatchString(%s) {`, p.regexPkg.Use(), v.GetRegex(), fieldValue)
 		p.generateErrorCode(fieldName, v.GetRegex(), "{field} must match regex {value}", v, field, "")
+		p.P(`}`)
+	}
+	if v.MinLen != nil {
+		p.P(`if len(%s) < %d {`, fieldValue, v.GetMinLen())
+		p.generateErrorCode(fieldName, fmt.Sprintf("%d", v.GetMinLen()), "{field} must be at least {value} characters long", v, field, "")
+		p.P(`}`)
+	}
+	if v.MaxLen != nil {
+		p.P(`if len(%s) > %d {`, fieldValue, v.GetMaxLen())
+		p.generateErrorCode(fieldName, fmt.Sprintf("%d", v.GetMaxLen()), "{field} must be no more than {value} characters long", v, field, "")
+		p.P(`}`)
+	}
+	if v.EqLen != nil {
+		p.P(`if len(%s) != %d {`, fieldValue, v.GetEqLen())
+		p.generateErrorCode(fieldName, fmt.Sprintf("%d", v.GetEqLen()), "{field} must be exactly {value} characters long", v, field, "")
 		p.P(`}`)
 	}
 	if v.IsUuid != nil {
