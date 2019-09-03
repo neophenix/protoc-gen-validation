@@ -44,21 +44,33 @@ field name and the required value.
 * return_on_error: bool - returns when we encounter an error instead of collecting all of them
 
 ## Errors
-A pointer to ValidationErrors is returned by each Validate() function.  This contains a slice of ValidationError pointers.  Each
-ValidationError has a Field that will be the name of the field that caused the error, and an ErrorMessage that is the human
-readable message.  Each ValidationError can then also contain an Errors array, is this is a message in a message in a message
-and we need some structure to see where the problems were.
+Each Validate function returns a typical error, but underneath that error is a ValidationErrors struct.  This contains a slice 
+of ValidationError pointers.  Each ValidationError has a Field that will be the name of the field that caused the error, and
+an ErrorMessage that is the human readable message.  Each ValidationError can then also contain an Errors array, if this is a 
+message in a message in a message and we need some structure to see where the problems were.
 
 The errors are defined as such
 ```
 type ValidationError struct {
-		Field string
-		ErrorMessage string
-		Errors []*ValidationError
+    Field string
+    ErrorMessage string
+    Errors []*ValidationError
 }
 
 type ValidationErrors struct {
     Errors []*ValidationError
+}
+```
+
+Usage example:
+```
+err = req.Validate()
+if err != nil {
+    if verr, ok := err.(*ValidationErrors); ok {
+        for _, v := range verr.Errors {
+	    fmt.Printf("%s\n", v.ErrorMessage)
+        }
+    }
 }
 ```
 
