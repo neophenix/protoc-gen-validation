@@ -78,8 +78,8 @@ func (p *Plugin) GenerateImports(file *generator.FileDescriptor) {
 // I lied above, this is actaully where all the code gets generated, at least for proto3
 func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generator.Descriptor) {
 	// begin Validate for this message
-	p.P("func (m *%s) Validate() *ValidationErrors {", message.GetName())
-	p.P("err := ValidationErrors{}")
+	p.P("func (m *%s) Validate() error {", message.GetName())
+	p.P("err := ValidationErrors{Errors: []*ValidationError{}}")
 
 	mv := getMessageValidation(message)
 
@@ -96,15 +96,19 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 				if field.IsRepeated() {
 					p.P("for i, v := range m.%s {", generator.CamelCase(field.GetName()))
 					p.P("msgerr := v.Validate()")
-					p.P("if len(msgerr.Errors) != 0 {")
-					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in repeated value {field}", v, mv, field, "msgerr")
+					p.P("if msgerr != nil {")
+					p.P("if msgvalerr, ok := msgerr.(*ValidationErrors); ok {")
+					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in repeated value {field}", v, mv, field, "msgvalerr")
+					p.P("}")
 					p.P("}")
 					p.P("}")
 				} else {
 					p.P("if m.%s != nil { ", generator.CamelCase(field.GetName()))
 					p.P("msgerr := m.%s.Validate()", generator.CamelCase(field.GetName()))
-					p.P("if len(msgerr.Errors) != 0 {")
-					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in {field}", v, mv, field, "msgerr")
+					p.P("if msgerr != nil {")
+					p.P("if msgvalerr, ok := msgerr.(*ValidationErrors); ok {")
+					p.generateErrorCode(generator.CamelCase(field.GetName()), "", "error in {field}", v, mv, field, "msgvalerr")
+					p.P("}")
 					p.P("}")
 					p.P("}")
 				}
@@ -202,7 +206,7 @@ func (p *Plugin) generateErrorType() {
 
 	// Error will just return the first error we encountered, inspect the actual object for more details
 	func (e *ValidationErrors) Error() string {
-		if len(e.Errors) >= 1 {
+		if e != nil && e.Errors != nil && len(e.Errors) >= 1 {
 			return e.Errors[0].ErrorMessage
 		}
 		return ""
