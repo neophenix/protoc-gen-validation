@@ -45,7 +45,7 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 	}
 	if v.IsUuid != nil {
 		p.P(`if !isValidUUID(%s) {`, fieldValue)
-		p.generateErrorCode(fieldName, "", "{field} be a valid UUID", v, mv, field, "")
+		p.generateErrorCode(fieldName, "", "{field} must be a valid UUID", v, mv, field, "")
 		p.P(`}`)
 	}
 	if v.IsEmail != nil {
