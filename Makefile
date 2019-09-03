@@ -1,6 +1,8 @@
 build:
 	go build -o protoc-gen-validation cmd/protoc-gen-validation/main.go
-	mv protoc-gen-validation ~/go/bin/
+
+install:
+	go install github.com/neophenix/protoc-gen-validation/cmd/protoc-gen-validation/
 
 validation:
 	protoc \
