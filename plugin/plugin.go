@@ -114,7 +114,7 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 				}
 			}
 		} else {
-			if field.IsRepeated() {
+			if field.IsRepeated() && v != nil {
 				p.P("for i, _ := range m.%s {", generator.CamelCase(field.GetName()))
 				p.generateValidationCode(field, v, mv)
 				p.P("}")
