@@ -8,7 +8,10 @@ import (
 )
 
 func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue string, v *pb.FieldValidation, mv *pb.MessageValidation, field *descriptor.FieldDescriptorProto) {
-	if v.NotEmptyString != nil {
+	if v.Trim != nil && *v.Trim {
+		p.P(`%s = %s.Trim(%s, " ")`, fieldValue, p.stringsPkg.Use(), fieldValue)
+	}
+	if v.NotEmptyString != nil && *v.NotEmptyString {
 		p.P(`if %s == "" {`, fieldValue)
 		p.generateErrorCode(fieldName, "", "{field} can not be an empty string", v, mv, field, "")
 		p.P(`}`)
@@ -43,12 +46,12 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 		p.generateErrorCode(fieldName, fmt.Sprintf("%d", v.GetEqLen()), "{field} must be exactly {value} characters long", v, mv, field, "")
 		p.P(`}`)
 	}
-	if v.IsUuid != nil {
+	if v.IsUuid != nil && *v.IsUuid {
 		p.P(`if !isValidUUID(%s) {`, fieldValue)
 		p.generateErrorCode(fieldName, "", "{field} must be a valid UUID", v, mv, field, "")
 		p.P(`}`)
 	}
-	if v.IsEmail != nil {
+	if v.IsEmail != nil && *v.IsEmail {
 		p.P(`if !isValidEmail(%s) {`, fieldValue)
 		p.generateErrorCode(fieldName, "", "{field} must be a valid email address", v, mv, field, "")
 		p.P(`}`)

@@ -30,6 +30,7 @@ message FieldValidation {
 	optional string error = 14;
 	optional bool is_uuid = 15;
 	optional bool is_email = 16;
+	optional bool trim = 17;
 }
 
 message MessageValidation {
