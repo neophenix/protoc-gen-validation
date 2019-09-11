@@ -92,6 +92,8 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 					p.generateValidationCode(field, v, mv)
 					p.P("}")
 				}
+			} else if p.gen.IsMap(field) {
+				p.P("// field:[%s] - maps not supported yet", field.GetName())
 			} else {
 				if field.IsRepeated() {
 					p.P("for i, v := range m.%s {", generator.CamelCase(field.GetName()))
