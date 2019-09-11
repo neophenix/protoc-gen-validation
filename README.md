@@ -27,7 +27,7 @@ field name and the required value.
 * min_len: int - must be at least this long
 * max_len: int - must be at most this long
 * eq_len: int - must be exactly this long
-* is_uid: bool - uses github.com/google/uuid to validate the value is a uuid
+* is_uuid: bool - uses github.com/google/uuid to validate the value is a uuid
 * is_email: bool - uses net/mail ParseAddress to validate this is an email address
 
 ### Ints
