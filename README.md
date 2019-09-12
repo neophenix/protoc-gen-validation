@@ -29,6 +29,9 @@ field name and the required value.
 * eq_len: int - must be exactly this long
 * is_uuid: bool - uses github.com/google/uuid to validate the value is a uuid
 * is_email: bool - uses net/mail ParseAddress to validate this is an email address
+* trim: bool - uses strings.Trim(value, " ") to remove whitespace before comparing value with other rules
+* lc: bool - uses strings.ToLower before comparing with other rules
+* uc: bool - uses strings.ToUpper before comparing with other rules
 
 ### Ints
 * int_lte: int - must be <= this value
