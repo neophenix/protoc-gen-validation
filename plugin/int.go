@@ -15,12 +15,12 @@ func (p *Plugin) generateIntValidationCode(fieldName string, fieldValue string, 
 	}
 	if v.IntLte != nil {
 		p.P(`if %s > %d {`, fieldValue, v.GetIntLte())
-		p.generateErrorCode(fieldName, fmt.Sprintf("%d", v.GetIntLte()), "{field} must be less than or equal to  {value}", v, mv, field, "")
+		p.generateErrorCode(fieldName, fmt.Sprintf("%d", v.GetIntLte()), "{field} must be less than or equal to {value}", v, mv, field, "")
 		p.P(`}`)
 	}
 	if v.IntGte != nil {
 		p.P(`if %s < %d {`, fieldValue, v.GetIntGte())
-		p.generateErrorCode(fieldName, fmt.Sprintf("%d", v.GetIntGte()), "{field} must be greater than or equal to  {value}", v, mv, field, "")
+		p.generateErrorCode(fieldName, fmt.Sprintf("%d", v.GetIntGte()), "{field} must be greater than or equal to {value}", v, mv, field, "")
 		p.P(`}`)
 	}
 }
