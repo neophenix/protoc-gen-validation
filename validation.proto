@@ -33,6 +33,7 @@ message FieldValidation {
 	optional bool trim = 17;
 	optional bool lc = 18;
 	optional bool uc = 19;
+	optional string transform_func = 20;
 }
 
 message MessageValidation {

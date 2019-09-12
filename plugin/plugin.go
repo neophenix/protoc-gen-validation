@@ -151,6 +151,10 @@ func (p *Plugin) generateValidationCode(field *descriptor.FieldDescriptorProto, 
 		fieldValueAccessor = "m." + generator.CamelCase(field.GetName()) + "[i]"
 	}
 
+	if v.TransformFunc != nil {
+		p.P("%s = %s(%s)", fieldValueAccessor, *v.TransformFunc, fieldValueAccessor)
+	}
+
 	if isString(field) {
 		p.generateStringValidationCode(fieldName, fieldValueAccessor, v, mv, field)
 	} else if isInt(field) {
