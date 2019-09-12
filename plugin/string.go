@@ -11,6 +11,12 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 	if v.Trim != nil && *v.Trim {
 		p.P(`%s = %s.Trim(%s, " ")`, fieldValue, p.stringsPkg.Use(), fieldValue)
 	}
+	if v.Lc != nil && *v.Lc {
+		p.P(`%s = %s.ToLower(%s)`, fieldValue, p.stringsPkg.Use(), fieldValue)
+	}
+	if v.Uc != nil && *v.Uc {
+		p.P(`%s = %s.ToUpper(%s)`, fieldValue, p.stringsPkg.Use(), fieldValue)
+	}
 	if v.NotEmptyString != nil && *v.NotEmptyString {
 		p.P(`if %s == "" {`, fieldValue)
 		p.generateErrorCode(fieldName, "", "{field} can not be an empty string", v, mv, field, "")

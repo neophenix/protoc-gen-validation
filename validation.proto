@@ -31,6 +31,8 @@ message FieldValidation {
 	optional bool is_uuid = 15;
 	optional bool is_email = 16;
 	optional bool trim = 17;
+	optional bool lc = 18;
+	optional bool uc = 19;
 }
 
 message MessageValidation {
