@@ -217,6 +217,19 @@ func (p *Plugin) generateErrorType() {
 		}
 		return ""
 	}
+
+	func GetValidationErrors(err error) []string {
+		if err != nil {
+			errorMessages := []string{}
+			if verr, ok := err.(*ValidationErrors); ok {
+				for _, v := range verr.Errors {
+					errorMessages = append(errorMessages, v.ErrorMessage)
+				}
+			}
+			return errorMessages
+		}
+		return nil
+	}
 	`
 	p.P(ourErrorDef)
 }
