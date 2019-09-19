@@ -80,6 +80,12 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 	// begin Validate for this message
 	p.P("func (m *%s) Validate() error {", message.GetName())
 	p.P("err := ValidationErrors{Errors: []*ValidationError{}}")
+	// if the message is nil, we can't validate it.  This should be ok to do here and will only be for "top level" messages
+	// any embedded messages we already check to make sure they aren't nil before we call Validate on them down below
+	p.P("if m == nil {")
+	p.P(`err.Errors = []*ValidationError{&ValidationError{Field: "message", ErrorMessage: "message is nil, validation can not proceed"}}`)
+	p.P(`return &err`)
+	p.P("}")
 
 	mv := getMessageValidation(message)
 
