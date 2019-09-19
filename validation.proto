@@ -14,28 +14,64 @@ extend google.protobuf.MessageOptions {
 }
 
 message FieldValidation {
+  // string options
+  // if value is defined, it can not be ""
 	optional bool not_empty_string = 1;
+  // the value has to be exactly this
 	optional string matches = 2;
+  // the value must contain this substring
 	optional string contains = 3;
+  // the value must match this regex
 	optional string regex = 4;
+
+  // integer options
+  // value must be less than or equal to this
 	optional int64 int_lte = 5;
+  // value must be greater than or equal to this
 	optional int64 int_gte = 6;
+  // value must equal this
 	optional int64 int_eq = 7;
+
+  // floating point type options
+  // value must be less than or equal to this
 	optional double float_lte = 8;
+  // value must be greater than or equal to this
 	optional double float_gte = 9;
+  // value must equal this
 	optional double float_eq = 10;
+
+  // more string options
+  // value must be at least this long
 	optional int64 min_len = 11;
+  // value must be at most this long
 	optional int64 max_len = 12;
+  // value must be exactly this long
 	optional int64 eq_len = 13;
+
+  // common option - define an error message instead of the default
+  // {field} and {value} can be used as placeholders and will be replaced with the actual values
 	optional string error = 14;
+
+  // more strings
+  // validate using github.com/google/uuid that this is an actual uuid
 	optional bool is_uuid = 15;
+  // validate using net/mail ParseAddress that this is a valid email
 	optional bool is_email = 16;
+  // use strings.Trim to trim whitespace from the value
 	optional bool trim = 17;
+  // use strings.ToLower before validating
 	optional bool lc = 18;
+  // use strings.ToUpper before validating
 	optional bool uc = 19;
+
+  // common option - a function name that you presumably defined in the same package space as the
+  // code we generate that will be called via m.Field = FuncName(m.Field) allowing for any custom transformation
 	optional string transform_func = 20;
 }
 
 message MessageValidation {
+  // returns right away after the first error instead of the default of validating all fields
 	optional bool return_on_error = 1;
+  // uses strings.Trim on all strings in this message
+  optional bool trim_strings = 2;
 }

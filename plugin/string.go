@@ -8,7 +8,7 @@ import (
 )
 
 func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue string, v *pb.FieldValidation, mv *pb.MessageValidation, field *descriptor.FieldDescriptorProto) {
-	if v.Trim != nil && *v.Trim {
+	if (v.Trim != nil && *v.Trim) || (mv != nil && mv.TrimStrings != nil && *mv.TrimStrings) {
 		p.P(`%s = %s.Trim(%s, " ")`, fieldValue, p.stringsPkg.Use(), fieldValue)
 	}
 	if v.Lc != nil && *v.Lc {
