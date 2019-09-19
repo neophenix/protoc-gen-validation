@@ -46,6 +46,7 @@ field name and the required value.
 
 ### Message Options
 * return_on_error: bool - returns when we encounter an error instead of collecting all of them
+* trim_strings: bool - apply strings.Trim(value, " ") to all strings in this message
 
 ## Errors
 Each Validate function returns a typical error, but underneath that error is a ValidationErrors struct.  This contains a slice 
@@ -112,6 +113,7 @@ message TestResponse {
 }
 
 message StringTests {
+	option (validation.message) = {return_on_error: true, trim_strings: true};
 	string min = 1 [(validation.field) = {min_len: 10}];
 	string max = 2 [(validation.field) = {max_len: 10}];
 	string eq = 3 [(validation.field) = {eq_len: 10}];
