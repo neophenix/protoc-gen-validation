@@ -225,16 +225,19 @@ func (p *Plugin) generateErrorType() {
 	}
 
 	func GetValidationErrors(err error) []string {
+		errorMessages := []string{}
 		if err != nil {
-			errorMessages := []string{}
 			if verr, ok := err.(*ValidationErrors); ok {
-				for _, v := range verr.Errors {
-					errorMessages = append(errorMessages, v.ErrorMessage)
+				errors := verr.Errors
+				for i := 0; i < len(errors); i++ {
+					errorMessages = append(errorMessages, errors[i].ErrorMessage)
+					if len(errors[i].Errors) != 0 {
+						errors = append(errors, errors[i].Errors...)
+					}
 				}
 			}
-			return errorMessages
 		}
-		return nil
+		return errorMessages
 	}
 	`
 	p.P(ourErrorDef)
