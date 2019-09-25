@@ -3,7 +3,6 @@ package plugin
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	pb "github.com/neophenix/protoc-gen-validation"
 
