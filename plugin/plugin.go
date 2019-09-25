@@ -62,8 +62,6 @@ func (p *Plugin) Generate(file *generator.FileDescriptor) {
 
 	// Helper funcs we can just generate even if we don't use them
 	p.generateHelperFunctions()
-
-	p.P("// Generated on: %v", time.Now().String())
 }
 
 // Remember that this is called last, so that we can mark imports as used in Generate and then they get output here.
