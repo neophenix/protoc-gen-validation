@@ -8,6 +8,8 @@ import (
 )
 
 func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue string, v *pb.FieldValidation, mv *pb.MessageValidation, field *descriptor.FieldDescriptorProto) {
+	closeBrackets := 0
+
 	if (v.Trim != nil && *v.Trim) || (mv != nil && mv.TrimStrings != nil && *mv.TrimStrings) {
 		p.P(`%s = %s.Trim(%s, " ")`, fieldValue, p.stringsPkg.Use(), fieldValue)
 	}
@@ -18,9 +20,26 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 		p.P(`%s = %s.ToUpper(%s)`, fieldValue, p.stringsPkg.Use(), fieldValue)
 	}
 	if v.NotEmptyString != nil {
-		// start this now, we will close it out later, if we've set not_empty_string there is no sense doing extra validation on it it if is one
-		// so this begins the wrap of the other possible validations
-		p.P(`if %s != "" {`, fieldValue)
+		// For empty string checks, there is no point in doing furhter validation if we have an empty string, so
+		// while it makes this code a bit uglier, try to build a decent looking if around further validation
+		if *v.NotEmptyString {
+			p.P(`if %s == "" {`, fieldValue)
+			p.generateErrorCode(fieldName, "", "{field} can not be an empty string", v, mv, field, "")
+
+			if getNumberOfValidationOptions(v) > 1 {
+				// we will close this out at the end of this function
+				p.P(`} else {`)
+				closeBrackets++
+			} else {
+				p.P(`}`)
+			}
+		} else {
+			if getNumberOfValidationOptions(v) > 1 {
+				// we will close this out at the end of this function
+				p.P(`if %s != "" {`, fieldValue)
+				closeBrackets++
+			}
+		}
 	}
 	if v.Matches != nil {
 		p.P(`if %s != "%s" {`, fieldValue, v.GetMatches())
@@ -63,13 +82,7 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 		p.P(`}`)
 	}
 
-	// so if we set not_empty_string, we only did validation if we had some value, now we need to decide if we need to output an error that it was empty
-	if v.NotEmptyString != nil {
-		if *v.NotEmptyString {
-			p.P(`} else {`)
-			p.generateErrorCode(fieldName, "", "{field} can not be an empty string", v, mv, field, "")
-		}
-		// we opened these up at the start, so close them now
+	for i := 0; i < closeBrackets; i++ {
 		p.P(`}`)
 	}
 }
@@ -82,4 +95,39 @@ func isString(field *descriptor.FieldDescriptorProto) bool {
 		return true
 	}
 	return false
+}
+
+// getNumberOfValidationOptions figures out how many options are set for this field, useful if we need to adjust
+// logic depending on if this is the only option
+func getNumberOfValidationOptions(v *pb.FieldValidation) int {
+    count := 0
+	// we can use this as false too, so don't check for true
+    if v.NotEmptyString != nil {
+        count++
+    }
+    if v.Matches != nil {
+        count++
+    }
+    if v.Contains != nil {
+        count++
+    }
+    if v.Regex != nil {
+        count++
+    }
+    if v.MinLen != nil {
+        count++
+    }
+    if v.MaxLen != nil {
+        count++
+    }
+    if v.EqLen != nil {
+        count++
+    }
+    if v.IsUuid != nil && *v.IsUuid {
+        count++
+    }
+    if v.IsEmail != nil && *v.IsEmail {
+        count++
+    }
+    return count
 }
