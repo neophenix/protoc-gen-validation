@@ -221,12 +221,14 @@ func (p *Plugin) generateErrorType() {
 		return ""
 	}
 
-	func GetValidationErrors(err error) []string {
+	func GetValidationErrors(err error) ([]string, []string) {
+		fields := []string{}
 		errorMessages := []string{}
 		if err != nil {
 			if verr, ok := err.(*ValidationErrors); ok {
 				errors := verr.Errors
 				for i := 0; i < len(errors); i++ {
+					fields = append(fields, errors[i].Field)
 					errorMessages = append(errorMessages, errors[i].ErrorMessage)
 					if len(errors[i].Errors) != 0 {
 						errors = append(errors, errors[i].Errors...)
@@ -234,7 +236,7 @@ func (p *Plugin) generateErrorType() {
 				}
 			}
 		}
-		return errorMessages
+		return fields, errorMessages
 	}
 	`
 	p.P(ourErrorDef)
