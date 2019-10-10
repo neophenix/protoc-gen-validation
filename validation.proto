@@ -57,16 +57,18 @@ message FieldValidation {
 	optional bool is_uuid = 15;
   // validate using net/mail ParseAddress that this is a valid email
 	optional bool is_email = 16;
+  // validate using time.Parse that this is a valid date using the default format of YYYY-MM-DD (2016-01-02 in go's crazy syntax)
+	optional bool is_iso8601_date = 17;
   // use strings.Trim to trim whitespace from the value
-	optional bool trim = 17;
+	optional bool trim = 18;
   // use strings.ToLower before validating
-	optional bool lc = 18;
+	optional bool lc = 19;
   // use strings.ToUpper before validating
-	optional bool uc = 19;
+	optional bool uc = 20;
 
   // common option - a function name that you presumably defined in the same package space as the
   // code we generate that will be called via m.Field = FuncName(m.Field) allowing for any custom transformation
-	optional string transform_func = 20;
+	optional string transform_func = 21;
 }
 
 message MessageValidation {

@@ -18,6 +18,7 @@ type Plugin struct {
 	regexPkg   generator.Single
 	stringsPkg generator.Single
 	mailPkg    generator.Single
+	timePkg    generator.Single
 	uuidPkg    generator.Single
 	strconvPkg generator.Single
 }
@@ -47,6 +48,7 @@ func (p *Plugin) Generate(file *generator.FileDescriptor) {
 	p.regexPkg = p.imp.NewImport("regexp")
 	p.stringsPkg = p.imp.NewImport("strings")
 	p.mailPkg = p.imp.NewImport("net/mail")
+	p.timePkg = p.imp.NewImport("time")
 	p.uuidPkg = p.imp.NewImport("github.com/google/uuid")
 	p.strconvPkg = p.imp.NewImport("strconv")
 	for _, msg := range file.Messages() {
@@ -200,6 +202,12 @@ func (p *Plugin) generateHelperFunctions() {
 		return err == nil
 	}`
 	p.P(isValidEmail)
+
+	isValidDate := `func isValidDate(f string, d string) bool {
+		_, err := ` + p.timePkg.Use() + `.Parse(f, d)
+		return err == nil
+	}`
+	p.P(isValidDate)
 }
 
 func (p *Plugin) generateErrorType() {
