@@ -57,7 +57,7 @@ message FieldValidation {
 	optional bool is_uuid = 15;
   // validate using net/mail ParseAddress that this is a valid email
 	optional bool is_email = 16;
-  // validate using time.Parse that this is a valid date using the default format of YYYY-MM-DD (2016-01-02 in go's crazy syntax)
+  // validate using time.Parse that this is a valid date using the default format of YYYY-MM-DD (2006-01-02 in go's crazy syntax)
 	optional bool is_iso8601_date = 17;
   // use strings.Trim to trim whitespace from the value
 	optional bool trim = 18;

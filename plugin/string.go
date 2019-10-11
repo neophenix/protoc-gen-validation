@@ -82,7 +82,7 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 		p.P(`}`)
 	}
 	if v.IsIso8601Date != nil && *v.IsIso8601Date {
-		p.P(`if !isValidDate("%s", %s) {`, "2016-01-02", fieldValue)
+		p.P(`if !isValidDate("%s", %s) {`, "2006-01-02", fieldValue)
 		p.generateErrorCode(fieldName, "", "{field} must be a date in the format YYYY-MM-DD", v, mv, field, "")
 		p.P(`}`)
 	}
