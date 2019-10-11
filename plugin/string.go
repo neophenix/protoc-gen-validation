@@ -81,6 +81,11 @@ func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue strin
 		p.generateErrorCode(fieldName, "", "{field} must be a valid email address", v, mv, field, "")
 		p.P(`}`)
 	}
+	if v.IsIso8601Date != nil && *v.IsIso8601Date {
+		p.P(`if !isValidDate("%s", %s) {`, "2016-01-02", fieldValue)
+		p.generateErrorCode(fieldName, "", "{field} must be a date in the format YYYY-MM-DD", v, mv, field, "")
+		p.P(`}`)
+	}
 
 	for i := 0; i < closeBrackets; i++ {
 		p.P(`}`)
@@ -127,6 +132,9 @@ func getNumberOfValidationOptions(v *pb.FieldValidation) int {
         count++
     }
     if v.IsEmail != nil && *v.IsEmail {
+        count++
+    }
+    if v.IsIso8601Date != nil && *v.IsIso8601Date {
         count++
     }
     return count
