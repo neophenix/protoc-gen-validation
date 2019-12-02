@@ -3,7 +3,7 @@ package plugin
 import (
 	"fmt"
 
-	pb "github.com/deelawn/protoc-gen-validation"
+	pb "github.com/neophenix/protoc-gen-validation"
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptoron"
 )
 
