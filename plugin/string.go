@@ -8,6 +8,11 @@ import (
 )
 
 func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue string, v *pb.FieldValidation, mv *pb.MessageValidation, field *descriptor.FieldDescriptorProto) {
+
+	if v.DoNotValidate != nil {
+		return
+	}
+
 	closeBrackets := 0
 
 	if (v.Trim != nil && *v.Trim) || (mv != nil && mv.TrimStrings != nil && *mv.TrimStrings) {
@@ -105,37 +110,37 @@ func isString(field *descriptor.FieldDescriptorProto) bool {
 // getNumberOfValidationOptions figures out how many options are set for this field, useful if we need to adjust
 // logic depending on if this is the only option
 func getNumberOfValidationOptions(v *pb.FieldValidation) int {
-    count := 0
+	count := 0
 	// we can use this as false too, so don't check for true
-    if v.NotEmptyString != nil {
-        count++
-    }
-    if v.Matches != nil {
-        count++
-    }
-    if v.Contains != nil {
-        count++
-    }
-    if v.Regex != nil {
-        count++
-    }
-    if v.MinLen != nil {
-        count++
-    }
-    if v.MaxLen != nil {
-        count++
-    }
-    if v.EqLen != nil {
-        count++
-    }
-    if v.IsUuid != nil && *v.IsUuid {
-        count++
-    }
-    if v.IsEmail != nil && *v.IsEmail {
-        count++
-    }
-    if v.IsIso8601Date != nil && *v.IsIso8601Date {
-        count++
-    }
-    return count
+	if v.NotEmptyString != nil {
+		count++
+	}
+	if v.Matches != nil {
+		count++
+	}
+	if v.Contains != nil {
+		count++
+	}
+	if v.Regex != nil {
+		count++
+	}
+	if v.MinLen != nil {
+		count++
+	}
+	if v.MaxLen != nil {
+		count++
+	}
+	if v.EqLen != nil {
+		count++
+	}
+	if v.IsUuid != nil && *v.IsUuid {
+		count++
+	}
+	if v.IsEmail != nil && *v.IsEmail {
+		count++
+	}
+	if v.IsIso8601Date != nil && *v.IsIso8601Date {
+		count++
+	}
+	return count
 }
