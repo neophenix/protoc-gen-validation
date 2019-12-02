@@ -76,7 +76,7 @@ type FieldValidation struct {
 	// code we generate that will be called via m.Field = FuncName(m.Field) allowing for any custom transformation
 	TransformFunc *string `protobuf:"bytes,21,opt,name=transform_func,json=transformFunc" json:"transform_func,omitempty"`
 	// do not generate validation code for a field; field type may not be supported i.e. oneof
-	DoNotValidate        *string  `protobuf:"bytes,22,opt,name=do_not_validate,json=doNotValidate" json:"do_not_validate,omitempty"`
+	DoNotValidate        *bool    `protobuf:"varint,22,opt,name=do_not_validate,json=doNotValidate" json:"do_not_validate,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -262,11 +262,11 @@ func (m *FieldValidation) GetTransformFunc() string {
 	return ""
 }
 
-func (m *FieldValidation) GetDoNotValidate() string {
+func (m *FieldValidation) GetDoNotValidate() bool {
 	if m != nil && m.DoNotValidate != nil {
 		return *m.DoNotValidate
 	}
-	return ""
+	return false
 }
 
 type MessageValidation struct {
@@ -381,7 +381,7 @@ var fileDescriptor_bfc2ab0b60b7792f = []byte{
 	0x4a, 0x4a, 0xbc, 0xe8, 0xcf, 0xa4, 0x0d, 0x3b, 0x45, 0x4a, 0xef, 0x79, 0x66, 0xa7, 0x48, 0x1d,
 	0xae, 0x52, 0xda, 0x0b, 0xb8, 0x4a, 0xc9, 0x13, 0x68, 0x5b, 0xcd, 0xa5, 0x99, 0x2a, 0x5d, 0xb2,
 	0x69, 0x25, 0x53, 0xda, 0xf7, 0x71, 0x5b, 0x1b, 0xf6, 0xb2, 0x92, 0xa9, 0x8b, 0x90, 0x29, 0xe6,
-	0xca, 0xb2, 0x2a, 0x1d, 0xd2, 0xfb, 0xe1, 0x5e, 0xa6, 0xde, 0x2b, 0xbb, 0xea, 0x14, 0x9e, 0x7e,
+	0xca, 0xb2, 0x2a, 0x1d, 0xd2, 0xfb, 0x21, 0x42, 0xa6, 0xde, 0x2b, 0xbb, 0xea, 0x14, 0x9e, 0x7e,
 	0x86, 0xc3, 0x77, 0x68, 0x0c, 0xcf, 0x71, 0xab, 0x66, 0x67, 0xd0, 0xd1, 0x68, 0x2b, 0x2d, 0x99,
 	0x92, 0x2c, 0xec, 0x24, 0xb4, 0xac, 0x15, 0xe8, 0x6b, 0x39, 0xf1, 0xbb, 0x79, 0x0c, 0x07, 0x2e,
 	0xf3, 0xaa, 0x89, 0xa1, 0x69, 0x8d, 0xa4, 0xe9, 0xb8, 0x50, 0x43, 0x73, 0x91, 0x40, 0x6d, 0xea,
@@ -389,8 +389,8 @@ var fileDescriptor_bfc2ab0b60b7792f = []byte{
 	0x43, 0xff, 0xfe, 0x72, 0x5d, 0x6c, 0x3e, 0x3f, 0x1e, 0x6f, 0x3d, 0x9b, 0x5b, 0xf5, 0x4f, 0x82,
 	0xd5, 0xc5, 0x0d, 0xc4, 0x65, 0xc8, 0x4c, 0x1e, 0xdd, 0x71, 0x5d, 0x4d, 0x73, 0xdb, 0xf7, 0x64,
 	0xdb, 0xf7, 0xce, 0xc4, 0xc9, 0xda, 0xf0, 0x15, 0xfd, 0xb1, 0x1c, 0x44, 0x3f, 0x97, 0x83, 0xe8,
-	0xf7, 0x72, 0x10, 0xdd, 0x6c, 0xbd, 0xd8, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff, 0xd2, 0xc1, 0xaf,
-	0x7c, 0xd0, 0x03, 0x00, 0x00,
+	0xf7, 0x72, 0x10, 0xdd, 0x6c, 0xbd, 0xd8, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff, 0xa8, 0x3e, 0x44,
+	0x2e, 0xd0, 0x03, 0x00, 0x00,
 }
 
 func (m *FieldValidation) Marshal() (dAtA []byte, err error) {
@@ -418,13 +418,16 @@ func (m *FieldValidation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.DoNotValidate != nil {
-		i -= len(*m.DoNotValidate)
-		copy(dAtA[i:], *m.DoNotValidate)
-		i = encodeVarintValidation(dAtA, i, uint64(len(*m.DoNotValidate)))
+		i--
+		if *m.DoNotValidate {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
 		i--
 		dAtA[i] = 0x1
 		i--
-		dAtA[i] = 0xb2
+		dAtA[i] = 0xb0
 	}
 	if m.TransformFunc != nil {
 		i -= len(*m.TransformFunc)
@@ -727,8 +730,7 @@ func (m *FieldValidation) Size() (n int) {
 		n += 2 + l + sovValidation(uint64(l))
 	}
 	if m.DoNotValidate != nil {
-		l = len(*m.DoNotValidate)
-		n += 2 + l + sovValidation(uint64(l))
+		n += 3
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -1258,10 +1260,10 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 			m.TransformFunc = &s
 			iNdEx = postIndex
 		case 22:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field DoNotValidate", wireType)
 			}
-			var stringLen uint64
+			var v int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowValidation
@@ -1271,25 +1273,13 @@ func (m *FieldValidation) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthValidation
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthValidation
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			s := string(dAtA[iNdEx:postIndex])
-			m.DoNotValidate = &s
-			iNdEx = postIndex
+			b := bool(v != 0)
+			m.DoNotValidate = &b
 		default:
 			iNdEx = preIndex
 			skippy, err := skipValidation(dAtA[iNdEx:])

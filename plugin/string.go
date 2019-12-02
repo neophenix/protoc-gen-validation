@@ -3,13 +3,13 @@ package plugin
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	pb "github.com/deelawn/protoc-gen-validation"
+	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 )
 
 func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue string, v *pb.FieldValidation, mv *pb.MessageValidation, field *descriptor.FieldDescriptorProto) {
 
-	if v.DoNotValidate != nil {
+	if v.DoNotValidate != nil && *v.DoNotValidate {
 		return
 	}
 

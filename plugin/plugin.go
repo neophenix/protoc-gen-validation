@@ -91,8 +91,6 @@ func (p *Plugin) generateProto3(file *generator.FileDescriptor, message *generat
 	for _, field := range message.Field {
 		v := getFieldValidation(field)
 
-		fmt.Printf("%+v\n", *v)
-
 		// Do not validate if this is set
 		if v != nil && v.DoNotValidate != nil {
 			continue

@@ -72,7 +72,7 @@ message FieldValidation {
   optional string transform_func = 21;
 
   // do not generate validation code for a field; field type may not be supported i.e. oneof
-  optional string do_not_validate = 22;
+  optional bool do_not_validate = 22;
 }
 
 message MessageValidation {
