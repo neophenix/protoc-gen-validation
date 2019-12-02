@@ -7,7 +7,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
-	plugin "github.com/neophenix/protoc-gen-validation/plugin"
+	plugin "github.com/deelawn/protoc-gen-validation/plugin"
 )
 
 func main() {
