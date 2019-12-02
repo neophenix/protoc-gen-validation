@@ -3,8 +3,8 @@ package plugin
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	pb "github.com/deelawn/protoc-gen-validation"
+	"github.com/gogo/protobuf/protoc-gen-gogo/descriptoron"
 )
 
 func (p *Plugin) generateFloatValidationCode(fieldName string, fieldValue string, v *pb.FieldValidation, mv *pb.MessageValidation, field *descriptor.FieldDescriptorProto) {

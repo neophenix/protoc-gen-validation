@@ -3,8 +3,8 @@ package plugin
 import (
 	"fmt"
 
-	pb "github.com/deelawn/protoc-gen-validation"
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
+	pb "github.com/neophenix/protoc-gen-validation"
 )
 
 func (p *Plugin) generateStringValidationCode(fieldName string, fieldValue string, v *pb.FieldValidation, mv *pb.MessageValidation, field *descriptor.FieldDescriptorProto) {
