@@ -1,4 +1,4 @@
-module github.com/neophenix/protoc-gen-validation
+module github.com/deelawn/protoc-gen-validation
 
 go 1.12
 
