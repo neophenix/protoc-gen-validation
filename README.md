@@ -19,6 +19,7 @@ func (s *server) MyRPC(ctx context.Context, req *pb.Request) (*pb.Response, erro
 * error: string - override predefined error messages.  You can use {field} and {value} as macros that get replaced with the
 field name and the required value.
 * transform_func: string - a function name that will be called like `m.Field = FuncName(m.Field)` allowing you to do any sort of custom transformation of the value that might not be supported in this package
+* do_not_validate: bool - if set to true, this field will not have validation logic generated; useful when using protobuf's "oneof" functionality
 
 ### String
 * not_empty_string: bool - make sure a string isn't ""
