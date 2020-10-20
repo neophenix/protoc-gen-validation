@@ -3,7 +3,7 @@ syntax = "proto2";
 import "google/protobuf/descriptor.proto";
 
 package validation;
-option go_package = "validation";
+option go_package = "github.com/neophenix/protoc-gen-validation;validation";
 
 // The number here is supposed to be registered with google I think, I just did a random num gen
 extend google.protobuf.FieldOptions {
