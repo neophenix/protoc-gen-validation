@@ -32,9 +32,9 @@ field name and the required value.
 * is_uuid: bool - uses github.com/google/uuid to validate the value is a uuid
 * is_email: bool - uses net/mail ParseAddress to validate this is an email address
 * is_iso8601_date: bool - uses time.Parse to validate this is a date in the format YYYY-MM-DD
-* trim: bool - uses strings.Trim(value, " ") to remove whitespace before comparing value with other rules
-* lc: bool - uses strings.ToLower before comparing with other rules
-* uc: bool - uses strings.ToUpper before comparing with other rules
+* trim: bool - runs value through strings.Trim(value, " ") to remove leading / trailing whitespace
+* lc: bool - runs value through strings.ToLower
+* uc: bool - runs value through strings.ToUpper
 
 ### Ints
 * int_lte: int - must be <= this value
@@ -48,7 +48,7 @@ field name and the required value.
 
 ### Message Options
 * return_on_error: bool - returns when we encounter an error instead of collecting all of them
-* trim_strings: bool - apply strings.Trim(value, " ") to all strings in this message
+* trim_strings: bool - applies strings.Trim(value, " ") to all strings in this message
 
 ## Errors
 Each Validate function returns a typical error, but underneath that error is a ValidationErrors struct.  This contains a slice 
