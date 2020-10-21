@@ -27,6 +27,10 @@ func main() {
 		g.Fail("no files to generate")
 	}
 
+	if p := g.Request.Parameter; p != nil {
+		g.CommandLineParameters(*p)
+	}
+
 	g.WrapTypes()
 	g.SetPackageNames()
 	g.BuildTypeNameMap()
