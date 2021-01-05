@@ -262,7 +262,12 @@ func (p *Plugin) generateErrorCode(fieldName string, requiredValue string, error
 	}
 	errorMsg = strings.ReplaceAll(errorMsg, "{value}", requiredValue)
 
-	p.P(`verr := ValidationError{}`)
+	if subErrorArray != "" {
+		p.P(`verr := ValidationError{Errors: make([]*ValidationError, len(msgvalerr.Errors))}`)
+	} else {
+		p.P(`verr := ValidationError{}`)
+	}
+
 	if field.IsRepeated() {
 		errorMsg = strings.ReplaceAll(errorMsg, "{field}", `" + fieldName + "`)
 		p.strconvPkg.Use()
