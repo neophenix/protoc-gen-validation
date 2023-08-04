@@ -97,16 +97,16 @@ message InnerArEl {
 }
 
 message TestRequest {
-	string foo = 1 [(validation.field) = {regex: "^[a-zA-Z]{2}$"}];
-	string bar = 2;
-	google.protobuf.StringValue baz = 3 [(validation.field) = {not_empty_string: true}];
-	Inner inner = 4;
-	string my_field = 5 [(validation.field) = {contains: "foo"}];
-	string uuid = 6 [(validation.field) = {is_uuid: true}];
-	string email = 7 [(validation.field) = {is_email: true}];
+	string                      foo        = 1 [(validation.field) = {regex: "^[a-zA-Z]{2}$"}];
+	string                      bar        = 2;
+	google.protobuf.StringValue baz        = 3 [(validation.field) = {not_empty_string: true}];
+	Inner                       inner      = 4;
+	string                      my_field   = 5 [(validation.field) = {contains: "foo"}];
+	string                      uuid       = 6 [(validation.field) = {is_uuid: true}];
+	string                      email      = 7 [(validation.field) = {is_email: true}];
 	google.protobuf.StringValue other_uuid = 8 [(validation.field) = {is_uuid: true}];
-	repeated string array = 9 [(validation.field) = {not_empty_string: true}];
-	repeated InnerArEl elements = 10;
+	repeated string             array      = 9 [(validation.field) = {not_empty_string: true}];
+	repeated InnerArEl          elements   = 10;
 }
 
 message TestResponse {
@@ -115,10 +115,12 @@ message TestResponse {
 }
 
 message StringTests {
-	option (validation.message) = {return_on_error: true, trim_strings: true};
+	option (validation.message) = {
+                return_on_error: true, trim_strings: true
+        };
 	string min = 1 [(validation.field) = {min_len: 10}];
 	string max = 2 [(validation.field) = {max_len: 10}];
-	string eq = 3 [(validation.field) = {eq_len: 10}];
+	string eq  = 3 [(validation.field) = {eq_len: 10}];
 }
 ```
 
